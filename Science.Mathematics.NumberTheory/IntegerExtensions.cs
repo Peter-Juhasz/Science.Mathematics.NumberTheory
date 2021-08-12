@@ -1,50 +1,79 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Science.Mathematics.NumberTheory
+namespace Science.Mathematics.NumberTheory;
+
+public static partial class EnumerableExtensions
 {
-    public static partial class IntegerExtensions
+    public static IEnumerable<T> Range<T>(T start, T count)
+        where T : IBinaryInteger<T>
     {
-        public static bool IsNegative(this int n) => n < 0;
-        public static bool IsPositive(this int n) => n > 0;
-        public static bool IsZero(this int n) => n == 0;
-
-        public static int ToPowerOf(this int n, int power)
+        for (T i = T.Zero; i < count; i++)
         {
-            if (power < 0)
-                throw new ArgumentOutOfRangeException(nameof(power));
-
-            if (power == 0)
-                return 1;
-
-            if (power == 1)
-                return n;
-
-            return Enumerable.Range(1, power - 1).Aggregate(n, (r, i) => r * n);
+            yield return start + i;
         }
+    }
 
-        public static int Square(this int n) => n * n;
+    public static T Sum<T>(this IEnumerable<T> source)
+        where T : INumber<T>, IAdditionOperators<T, T, T>, IAdditiveIdentity<T, T> =>
+            source.Aggregate(T.AdditiveIdentity, (x, y) => x + y);
 
-        public static int Product(this IEnumerable<int> source) => source.Aggregate(1, (x, y) => x * y);
+    public static T Product<T>(this IEnumerable<T> source) 
+        where T : INumber<T>, IMultiplyOperators<T, T, T>, IMultiplicativeIdentity<T, T> =>
+            source.Aggregate(T.MultiplicativeIdentity, (x, y) => x * y);
+}
 
-        public static bool IsPerfectPower(this int n, int power)
-        {
-            if (n == 1)
-                return true;
+public static partial class IntegerExtensions
+{
+    public static bool IsNegative<T>(this T n)
+        where T : INumber<T>, IComparisonOperators<T, T>, ISignedNumber<T> =>
+            n < T.Zero;
 
-            if (power <= 0)
-                throw new ArgumentOutOfRangeException(nameof(power));
+    public static bool IsPositive<T>(this T n) 
+        where T : INumber<T>, IComparisonOperators<T, T>, ISignedNumber<T> =>
+            n > T.Zero;
 
-            if (power == 1)
-                return true;
+    public static bool IsZero<T>(this T n) where T : INumber<T> => n == T.Zero;
 
-            return n.Factor().GroupBy(f => f).All(g => g.Count() % power == 0);
-        }
+    public static T ToPowerOf<T, TPower>(this T n, TPower power)
+        where T : INumber<T>, IMultiplicativeIdentity<T, T>
+        where TPower : IBinaryInteger<TPower>
+    {
+        if (power < TPower.Zero)
+            throw new ArgumentOutOfRangeException(nameof(power));
 
-        public static bool IsPerfectSquare(this int n) => n.IsPerfectPower(2);
+        if (power == TPower.Zero)
+            return T.MultiplicativeIdentity;
 
-        public static int LeastCommonMultiple(this IEnumerable<int> numbers) =>
+        if (power == TPower.MultiplicativeIdentity)
+            return n;
+
+        return EnumerableExtensions.Range(TPower.One, power - TPower.One).Aggregate(n, (r, i) => r * n);
+    }
+
+    public static T Square<T>(this T n) where T : INumber<T> => n * n;
+
+    public static bool IsPerfectPower<T, TPower>(this T n, TPower power)
+         where T : IBinaryInteger<T>, IMultiplicativeIdentity<T, T>
+         where TPower : IBinaryInteger<TPower>
+    {
+        if (n == T.MultiplicativeIdentity)
+            return true;
+
+        if (power <= TPower.Zero)
+            throw new ArgumentOutOfRangeException(nameof(power));
+
+        if (power == TPower.One)
+            return true;
+
+        return n.Factor().GroupBy(f => f).All(g => g.Count() % power == 0);
+    }
+
+    public static bool IsPerfectSquare<T>(this T n)
+        where T : IBinaryInteger<T> =>
+            n.IsPerfectPower(2);
+
+    public static T LeastCommonMultiple<T>(this IEnumerable<T> numbers)
+        where T : IBinaryInteger<T> =>
             numbers.SelectMany(n => n
                     .Factor()                                          // (2, 2, 2), (3, 3, 2), (3, 7)
                     .GroupBy(f => f)                                   // (2^3), (3^2, 2^1), (3^1, 7^1)
@@ -53,5 +82,4 @@ namespace Science.Mathematics.NumberTheory
                 .Select(g => g.Key.ToPowerOf(g.Max(g2 => g2.Count()))) // 2^3 * 3^2 * 7^1
                 .Product();                                            // 504
 
-    }
 }

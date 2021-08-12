@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-
-    <IsPackable>false</IsPackable>
+	  <EnablePreviewFeatures>true</EnablePreviewFeatures>
+	  <LangVersion>preview</LangVersion>
+	  <TargetFramework>net6.0</TargetFramework>
+      <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

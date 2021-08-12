@@ -1,48 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿namespace Science.Mathematics.NumberTheory;
 
-namespace Science.Mathematics.NumberTheory
+public static partial class IntegerExtensions
 {
-    public static partial class IntegerExtensions
-    {
-        public static bool IsEven(this int n) => n % 2 == 0;
+    public static bool IsEven<T>(this T n)
+        where T : IBinaryInteger<T> =>
+            n % (T.One + T.One) == T.Zero;
 
-        public static bool IsOdd(this int n) => n % 2 != 0;
+    public static bool IsOdd<T>(this T n)
+        where T : IBinaryInteger<T> =>
+            n % (T.One + T.One) != T.Zero;
 
+    public static bool IsDivisibleBy<T>(this T n, T denominator)
+        where T : IBinaryInteger<T> =>
+            n % denominator == T.Zero;
 
-        public static bool IsDivisibleBy(this int n, int denominator) => n % denominator == 0;
+    public static IEnumerable<T> Divisors<T>(this T n)
+        where T : IBinaryInteger<T>, IMultiplicativeIdentity<T, T> =>
+            EnumerableExtensions.Range(T.MultiplicativeIdentity, n).Where(i => n.IsDivisibleBy(i));
 
-        public static IEnumerable<int> Divisors(this int n) => Enumerable.Range(1, n).Where(i => n % i == 0);
-
-        public static int GreatestCommonDivisor(int a, int b) =>
+    public static T GreatestCommonDivisor<T>(T a, T b)
+        where T : IBinaryInteger<T> =>
             a.Divisors().Intersect(b.Divisors())
-                .DefaultIfEmpty(1)
+                .DefaultIfEmpty(T.MultiplicativeIdentity)
                 .Max();
 
-        public static int GreatestCommonDivisor(this IEnumerable<int> source) =>
+    public static T GreatestCommonDivisor<T>(this IEnumerable<T> source)
+        where T : IBinaryInteger<T> =>
             source.Select(i => i.Divisors())
                 .Aggregate(Enumerable.Intersect)
-                .DefaultIfEmpty(1)
+                .DefaultIfEmpty(T.MultiplicativeIdentity)
                 .Max();
 
-        public static IEnumerable<int> Factor(this int n)
+    public static IEnumerable<T> Factor<T>(this T n)
+        where T : IBinaryInteger<T>, IMultiplicativeIdentity<T, T>
+    {
+        var current = n;
+
+        if (n == T.MultiplicativeIdentity)
+            yield return T.MultiplicativeIdentity;
+
+        while (current > T.MultiplicativeIdentity)
         {
-            var current = n;
-
-            if (n == 1)
-                yield return 1;
-
-            while (current > 1)
+            for (var i = T.MultiplicativeIdentity + T.One; i <= current; i++)
             {
-                for (var i = 2; i <= current; i++)
+                if (current % i == T.Zero)
                 {
-                    if (current % i == 0)
-                    {
-                        yield return i;
-                        current /= i;
-                        break;
-                    }
+                    yield return i;
+                    current /= i;
+                    break;
                 }
             }
         }
