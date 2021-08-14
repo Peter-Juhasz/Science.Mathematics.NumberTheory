@@ -2,16 +2,8 @@
 
 public static partial class IntegerExtensions
 {
-    public static bool IsEven<T>(this T n)
-        where T : IBinaryInteger<T> =>
-            n % (T.One + T.One) == T.Zero;
-
-    public static bool IsOdd<T>(this T n)
-        where T : IBinaryInteger<T> =>
-            n % (T.One + T.One) != T.Zero;
-
     public static bool IsDivisibleBy<T>(this T n, T denominator)
-        where T : IBinaryInteger<T> =>
+        where T : IBinaryInteger<T>, IModulusOperators<T, T, T> =>
             n % denominator == T.Zero;
 
     public static IEnumerable<T> Divisors<T>(this T n)
@@ -52,4 +44,12 @@ public static partial class IntegerExtensions
             }
         }
     }
+
+    public static bool IsPrime<T>(T candidate, IPrimeTest test)
+        where T : IBinaryInteger<T>, IMultiplicativeIdentity<T, T> =>
+            test.IsPrime(candidate);
+
+    public static bool AreCoprimes<T>(T a, T b)
+        where T : IBinaryInteger<T>, IMultiplicativeIdentity<T, T> =>
+            GreatestCommonDivisor(T.Create(2).ToPowerOf(a) - T.One, T.Create(2).ToPowerOf(b) - T.One) == T.Create(2).ToPowerOf(GreatestCommonDivisor(a, b)) - T.One;
 }

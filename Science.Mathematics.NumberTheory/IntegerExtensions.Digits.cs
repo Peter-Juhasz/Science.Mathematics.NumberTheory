@@ -24,5 +24,5 @@ public static partial class IntegerExtensions
 
     public static bool IsArmstrongNumber<T>(this T n)
         where T : IBinaryInteger<T> =>
-            n.Digits().Sum(i => i.ToPowerOf(n.Length())) == n;
+            T.Create(n.Digits().Sum(i => i.ToPowerOf(n.Length()))) == n;
 }
