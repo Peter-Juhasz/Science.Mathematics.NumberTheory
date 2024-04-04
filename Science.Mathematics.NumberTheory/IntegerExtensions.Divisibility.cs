@@ -1,48 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
-namespace Science.Mathematics.NumberTheory
+namespace Science.Mathematics.NumberTheory;
+
+public static partial class IntegerExtensions
 {
-    public static partial class IntegerExtensions
+    public static bool IsEven<T>(this T n) where T : INumberBase<T> => T.IsEvenInteger(n);
+
+    public static bool IsOdd<T>(this T n) where T : INumberBase<T> => T.IsOddInteger(n);
+
+
+    public static bool IsDivisibleBy<T>(this T n, T denominator) where T : INumberBase<T>, IModulusOperators<T, T, T> => n % denominator == T.Zero;
+
+    public static IEnumerable<T> Divisors<T>(this T n) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T>
     {
-        public static bool IsEven(this int n) => n % 2 == 0;
-
-        public static bool IsOdd(this int n) => n % 2 != 0;
-
-
-        public static bool IsDivisibleBy(this int n, int denominator) => n % denominator == 0;
-
-        public static IEnumerable<int> Divisors(this int n) => Enumerable.Range(1, n).Where(i => n % i == 0);
-
-        public static int GreatestCommonDivisor(int a, int b) =>
-            a.Divisors().Intersect(b.Divisors())
-                .DefaultIfEmpty(1)
-                .Max();
-
-        public static int GreatestCommonDivisor(this IEnumerable<int> source) =>
-            source.Select(i => i.Divisors())
-                .Aggregate(Enumerable.Intersect)
-                .DefaultIfEmpty(1)
-                .Max();
-
-        public static IEnumerable<int> Factor(this int n)
+        for (T i = T.One; i <= n; i++)
         {
-            var current = n;
-
-            if (n == 1)
-                yield return 1;
-
-            while (current > 1)
+            if (n % i == T.Zero)
             {
-                for (var i = 2; i <= current; i++)
+                yield return i;
+            }
+        }
+    }
+
+    public static bool IsPrime<T>(this T n) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T> => n.Divisors().Count() == 2;
+
+    public static T GreatestCommonDivisor<T>(T a, T b) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T> =>
+        a.Divisors().Intersect(b.Divisors())
+            .DefaultIfEmpty(T.One)
+            .Max();
+
+    public static T GreatestCommonDivisor<T>(this IEnumerable<T> source) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T> =>
+        source.Select(i => i.Divisors())
+            .Aggregate(Enumerable.Intersect)
+            .DefaultIfEmpty(T.One)
+            .Max();
+
+    public static IEnumerable<T> Factor<T>(this T n) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T>
+    {
+        T current = n;
+        
+        if (n == T.One)
+            yield return T.One;
+
+        while (current > T.One)
+        {
+            for (T i = T.One + T.One; i <= current; i++)
+            {
+                if (current % i == T.Zero)
                 {
-                    if (current % i == 0)
-                    {
-                        yield return i;
-                        current /= i;
-                        break;
-                    }
+                    yield return i;
+                    current /= i;
+                    break;
                 }
             }
         }

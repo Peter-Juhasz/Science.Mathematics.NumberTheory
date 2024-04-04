@@ -1,57 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
-namespace Science.Mathematics.NumberTheory
+namespace Science.Mathematics.NumberTheory;
+
+public static partial class IntegerExtensions
 {
-    public static partial class IntegerExtensions
+    public static bool IsNegative<T>(this T n) where T : INumberBase<T> => T.IsNegative(n);
+    public static bool IsPositive<T>(this T n) where T : INumberBase<T> => T.IsPositive(n) && n != T.Zero;
+    public static bool IsZero<T>(this T n) where T : INumberBase<T> => T.IsZero(n);
+
+    public static T ToPowerOf<T, TPower>(this T n, TPower power)
+        where T : IMultiplyOperators<T, T, T>, INumberBase<T>, IComparisonOperators<T, T, bool>
+        where TPower : IBinaryInteger<TPower>, INumberBase<TPower>
     {
-        public static bool IsNegative(this int n) => n < 0;
-        public static bool IsPositive(this int n) => n > 0;
-        public static bool IsZero(this int n) => n == 0;
+        if (TPower.IsNegative(power))
+            throw new ArgumentOutOfRangeException(nameof(power));
 
-        public static int ToPowerOf(this int n, int power)
+        if (TPower.IsZero(power))
+            return T.One;
+
+        if (power == TPower.One)
+            return n;
+
+        T result = n;
+
+        for (TPower i = TPower.One; i < power; i++)
         {
-            if (power < 0)
-                throw new ArgumentOutOfRangeException(nameof(power));
-
-            if (power == 0)
-                return 1;
-
-            if (power == 1)
-                return n;
-
-            return Enumerable.Range(1, power - 1).Aggregate(n, (r, i) => r * n);
+            result *= n;
         }
 
-        public static int Square(this int n) => n * n;
-
-        public static int Product(this IEnumerable<int> source) => source.Aggregate(1, (x, y) => x * y);
-
-        public static bool IsPerfectPower(this int n, int power)
-        {
-            if (n == 1)
-                return true;
-
-            if (power <= 0)
-                throw new ArgumentOutOfRangeException(nameof(power));
-
-            if (power == 1)
-                return true;
-
-            return n.Factor().GroupBy(f => f).All(g => g.Count() % power == 0);
-        }
-
-        public static bool IsPerfectSquare(this int n) => n.IsPerfectPower(2);
-
-        public static int LeastCommonMultiple(this IEnumerable<int> numbers) =>
-            numbers.SelectMany(n => n
-                    .Factor()                                          // (2, 2, 2), (3, 3, 2), (3, 7)
-                    .GroupBy(f => f)                                   // (2^3), (3^2, 2^1), (3^1, 7^1)
-                )                                                      // 2^3, 3^2, 2^1, 3^1, 7^1
-                .GroupBy(g => g.Key)                                   // (2^3, 2^1), (3^2, 3^1), (7^1)
-                .Select(g => g.Key.ToPowerOf(g.Max(g2 => g2.Count()))) // 2^3 * 3^2 * 7^1
-                .Product();                                            // 504
-
+        return result;
     }
+
+    public static T Square<T>(this T n) where T : IMultiplyOperators<T, T, T> => n * n;
+
+    public static T Cube<T>(this T n) where T : IMultiplyOperators<T, T, T> => n * n * n;
+
+    public static T Product<T>(this IEnumerable<T> source) where T : IMultiplyOperators<T, T, T>, INumberBase<T>
+    {
+        T result = T.One;
+
+        foreach (T n in source)
+        {
+            result *= n;
+        }
+
+        return result;
+    }
+
+    public static bool IsPerfectPower<T>(this T n, T power) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T>
+    {
+        if (n == T.One)
+            return true;
+
+        if (!T.IsPositive(power))
+            throw new ArgumentOutOfRangeException(nameof(power));
+
+        if (power == T.One)
+            return true;
+
+        return n.Factor().GroupBy(f => f).All(g => T.CreateChecked(g.Count()) % power == T.Zero);
+    }
+
+    public static bool IsPerfectSquare<T>(this T n) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T> => n.IsPerfectPower(T.One + T.One);
+
+    public static T LeastCommonMultiple<T>(this IEnumerable<T> numbers) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T> =>
+        numbers.SelectMany(n => n
+                .Factor()                                          // (2, 2, 2), (3, 3, 2), (3, 7)
+                .GroupBy(f => f)                                   // (2^3), (3^2, 2^1), (3^1, 7^1)
+            )                                                      // 2^3, 3^2, 2^1, 3^1, 7^1
+            .GroupBy(g => g.Key)                                   // (2^3, 2^1), (3^2, 3^1), (7^1)
+            .Select(g => g.Key.ToPowerOf(g.Max(g2 => g2.Count()))) // 2^3 * 3^2 * 7^1
+            .Product();                                            // 504
 }
