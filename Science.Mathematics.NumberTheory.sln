@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Science.Mathematics.NumberTheory", "Science.Mathematics.NumberTheory\Science.Mathematics.NumberTheory.csproj", "{AF58CD44-0185-4FBE-90AC-1CBEF54DA3CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Science.Mathematics.NumberTheory", "src\Science.Mathematics.NumberTheory\Science.Mathematics.NumberTheory.csproj", "{AF58CD44-0185-4FBE-90AC-1CBEF54DA3CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Science.Mathematics.NumberTheory.Tests", "Science.Mathematics.NumberTheory.Tests\Science.Mathematics.NumberTheory.Tests.csproj", "{825791F9-82BB-4EF2-9A35-B79A82602F04}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Science.Mathematics.NumberTheory.Tests", "test\Science.Mathematics.NumberTheory.Tests\Science.Mathematics.NumberTheory.Tests.csproj", "{825791F9-82BB-4EF2-9A35-B79A82602F04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
