@@ -12,13 +12,13 @@ public static partial class IntegerExtensions
     public static bool IsOdd<T>(this T n) where T : INumberBase<T> => T.IsOddInteger(n);
 
 
-    public static bool IsDivisibleBy<T>(this T n, T denominator) where T : INumberBase<T>, IModulusOperators<T, T, T> => n % denominator == T.Zero;
+    public static bool IsDivisibleBy<T>(this T n, T denominator) where T : INumberBase<T>, IModulusOperators<T, T, T> => (n % denominator) == T.Zero;
 
     public static IEnumerable<T> Divisors<T>(this T n) where T : INumberBase<T>, IBinaryInteger<T>, IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T>
     {
         for (T i = T.One; i <= n; i++)
         {
-            if (n % i == T.Zero)
+            if ((n % i) == T.Zero)
             {
                 yield return i;
             }
@@ -42,14 +42,14 @@ public static partial class IntegerExtensions
     {
         T current = n;
         
-        if (n == T.One)
-            yield return T.One;
+        if (n == T.MultiplicativeIdentity)
+            yield return T.MultiplicativeIdentity;
 
         while (current > T.One)
         {
             for (T i = T.One + T.One; i <= current; i++)
             {
-                if (current % i == T.Zero)
+                if ((current % i) == T.Zero)
                 {
                     yield return i;
                     current /= i;
