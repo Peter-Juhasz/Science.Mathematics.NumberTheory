@@ -1,29 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Science.Mathematics.NumberTheory;
 
 public static partial class IntegerExtensions
 {
-    public static IEnumerable<int> Digits(this int n) =>
-        n.AbsoluteValue().ToString(CultureInfo.InvariantCulture)
-            .Cast<string>()
-            .Select(Int32.Parse);
+    public static ReadOnlySpan<T> Digits<T>(this T n, T @base) where T : IBinaryInteger<T>
+    {
+        T abs = n.AbsoluteValue();
+        int length = n.Length(@base);
 
-    public static int Length(this int n) => n.Digits().Count();
+        T[] digits = new T[length];
+        for (int i = 0; i < length; i++)
+        {
+            digits[i] = abs % @base;
+            abs /= @base;
+        }
 
-    public static int LengthLogarithmic<T>(this T n, T @base) where T : ILogarithmicFunctions<T> => int.CreateChecked(T.Log(n.AbsoluteValue(), @base) + T.One);
+        digits.AsSpan().Reverse();
 
-    public static int LengthIterative<T>(this T n, T @base) where T : IBinaryInteger<T>
+        return digits;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ReadOnlySpan<T> Digits<T>(this T n) where T : IBinaryInteger<T> => n.Digits(T.CreateChecked(10));
+
+
+    public static int Length<T>(this T n, T @base) where T : IBinaryInteger<T>
     {
         int length = 1;
         T abs = n.AbsoluteValue();
-        
+
+        // use logarithmic identities for powers of 2
+        if (T.IsPow2(@base))
+        {
+            var log2OfBase = T.Log2(@base);
+            var log2OfN = T.Log2(abs);
+            return int.CreateChecked(log2OfN / log2OfBase) + 1;
+        }
+
+        // iterative for all other bases
         T reference = @base;
-        while (abs >= @base)
+        while (abs >= reference)
         {
             reference *= @base;
             length++;
@@ -32,9 +52,6 @@ public static partial class IntegerExtensions
         return length;
     }
 
-    public static bool IsPalindromic(this int n) => n.Digits().SequenceEqual(n.Digits().Reverse());
-
-    public static bool IsRepunit(this int n) => n.Digits().Distinct().Count() == 1;
-
-    public static bool IsArmstrongNumber(this int n) => n.Digits().Sum(i => i.ToPowerOf(n.Length())) == n;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int Length<T>(this T n) where T : IBinaryInteger<T> => n.Length(T.CreateChecked(10));
 }
