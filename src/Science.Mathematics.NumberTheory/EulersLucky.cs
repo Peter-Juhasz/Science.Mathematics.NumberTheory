@@ -15,7 +15,7 @@ public static partial class IntegerExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="n"></param>
     /// <returns></returns>
-    public static bool IsEulersLuckyNumber<T>(this T n) where T :
+    public static bool IsEulersLuckyNumber<T>(this T n, IPrimalityTest<T> primeTest) where T :
         INumberBase<T>, IBinaryInteger<T>,
         IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T>
     {
@@ -27,7 +27,7 @@ public static partial class IntegerExtensions
         for (T i = T.Zero; i < n; i++)
         {
             T result = i * i - i + n;
-            if (!result.IsPrime())
+            if (!result.IsPrime(primeTest))
             {
                 return false;
             }
@@ -36,8 +36,8 @@ public static partial class IntegerExtensions
         return true;
     }
 
-    public static bool IsCabooseNumber<T>(this T n) where T :
+    public static bool IsCabooseNumber<T>(this T n, IPrimalityTest<T> primeTest) where T :
         INumberBase<T>, IBinaryInteger<T>,
         IComparisonOperators<T, T, bool>, IModulusOperators<T, T, T> =>
-        n.IsEulersLuckyNumber();
+        n.IsEulersLuckyNumber(primeTest);
 }

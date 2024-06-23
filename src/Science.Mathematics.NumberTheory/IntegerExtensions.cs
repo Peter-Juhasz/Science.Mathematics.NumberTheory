@@ -2,20 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Science.Mathematics.NumberTheory;
 
 public static partial class IntegerExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNegative<T>(this T n) where T : INumberBase<T> => T.IsNegative(n);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPositive<T>(this T n) where T : INumberBase<T> => T.IsPositive(n) && n != T.Zero;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsZero<T>(this T n) where T : INumberBase<T> => T.IsZero(n);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T AbsoluteValue<T>(this T n) where T : INumberBase<T> => T.IsNegative(n) ? -n : n;
+
 
     public static T ToPowerOf<T, TPower>(this T n, TPower power)
         where T : IMultiplyOperators<T, T, T>, INumberBase<T>, IComparisonOperators<T, T, bool>
-        where TPower : IBinaryInteger<TPower>, INumberBase<TPower>
+        where TPower : IBinaryInteger<TPower>
     {
         if (TPower.IsNegative(power))
             throw new ArgumentOutOfRangeException(nameof(power));
@@ -36,12 +44,16 @@ public static partial class IntegerExtensions
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Double<T>(this T n) where T : IAdditionOperators<T, T, T> => n + n;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Triple<T>(this T n) where T : IAdditionOperators<T, T, T> => n + n + n;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Square<T>(this T n) where T : IMultiplyOperators<T, T, T> => n * n;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Cube<T>(this T n) where T : IMultiplyOperators<T, T, T> => n * n * n;
 
     public static T Product<T>(this IEnumerable<T> source) where T : IMultiplyOperators<T, T, T>, INumberBase<T>

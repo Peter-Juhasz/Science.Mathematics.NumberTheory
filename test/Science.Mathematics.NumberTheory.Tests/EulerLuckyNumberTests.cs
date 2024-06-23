@@ -8,6 +8,6 @@ public class EulerLuckyNumberTests
     [TestMethod]
     public void Is_41()
     {
-        Assert.IsTrue(41.IsEulersLuckyNumber());
+        Assert.IsTrue(41.IsEulersLuckyNumber(BruteForcePrimalityTest<int>.Default));
     }
 }

@@ -9,6 +9,9 @@ public static partial class IntegerExtensions
 {
     public static ReadOnlySpan<T> Digits<T>(this T n, T @base) where T : IBinaryInteger<T>
     {
+        if (@base <= T.One)
+            throw new ArgumentOutOfRangeException(nameof(@base), @base, "Base must be greater than 1.");
+
         T abs = n.AbsoluteValue();
         int length = n.Length(@base);
 
@@ -54,4 +57,19 @@ public static partial class IntegerExtensions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Length<T>(this T n) where T : IBinaryInteger<T> => n.Length(T.CreateChecked(10));
+
+
+    public static T FromDigits<T>(ReadOnlySpan<T> digits, T @base) where T : IBinaryInteger<T>
+    {
+        T result = T.Zero;
+        T power = T.One;
+
+        for (int i = digits.Length - 1; i >= 0; i--)
+        {
+            result += digits[i] * power;
+            power *= @base;
+        }
+
+        return result;
+    }
 }
