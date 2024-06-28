@@ -31,9 +31,6 @@ public static partial class IntegerExtensions
 
     public static IEnumerable<T> ProperDivisors<T>(this T n) where T : IBinaryInteger<T> => n.Divisors().SkipLast(1);
 
-    public static bool IsPerfectNumber<T>(this T n) where T : IBinaryInteger<T> =>
-        n.ProperDivisors().Sum() == n;
-
 
     public static T GreatestCommonDivisor<T>(T a, T b) where T : IBinaryInteger<T> =>
         a.Divisors().Intersect(b.Divisors())

@@ -24,4 +24,6 @@ public static partial class IntegerExtensions
 
         return count;
     }
+
+    public static bool IsComposite<T>(this T n, IPrimalityTest<T> test) where T : IBinaryInteger<T> => !test.Test(n);
 }
