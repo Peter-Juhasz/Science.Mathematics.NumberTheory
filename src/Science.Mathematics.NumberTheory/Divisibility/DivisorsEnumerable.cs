@@ -24,7 +24,7 @@ public readonly struct DivisorsEnumerable<T>(T n) : IEnumerable<T> where T : IBi
 
         public bool MoveNext()
         {
-            for (T i = _current + T.One; i <= n; _current += T.One)
+            for (T i = _current + T.One; i <= n; _current++)
             {
                 if ((n % _current) == T.Zero)
                 {
