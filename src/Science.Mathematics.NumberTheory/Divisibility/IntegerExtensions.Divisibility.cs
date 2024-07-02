@@ -18,16 +18,7 @@ public static partial class IntegerExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsDivisibleBy<T>(this T n, T denominator) where T : IBinaryInteger<T> => (n % denominator) == T.Zero;
 
-    public static IEnumerable<T> Divisors<T>(this T n) where T : IBinaryInteger<T>
-    {
-        for (T i = T.One; i <= n; i++)
-        {
-            if ((n % i) == T.Zero)
-            {
-                yield return i;
-            }
-        }
-    }
+    public static DivisorsEnumerable<T> Divisors<T>(this T n) where T : IBinaryInteger<T> => new(n);
 
     public static IEnumerable<T> ProperDivisors<T>(this T n) where T : IBinaryInteger<T> => n.Divisors().SkipLast(1);
 
@@ -38,7 +29,7 @@ public static partial class IntegerExtensions
             .Max();
 
     public static T GreatestCommonDivisor<T>(this IEnumerable<T> source) where T : IBinaryInteger<T> =>
-        source.Select(i => i.Divisors())
+        source.Select(i => i.Divisors().AsEnumerable())
             .Aggregate(Enumerable.Intersect)
             .DefaultIfEmpty(T.One)
             .Max();
